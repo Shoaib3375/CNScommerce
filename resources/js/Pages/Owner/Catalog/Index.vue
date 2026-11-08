@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { router, useForm } from '@inertiajs/vue3';
+import { ref } from 'vue';
+import { router } from '@inertiajs/vue3';
 import OwnerLayout from '@/Layouts/OwnerLayout.vue';
 import ProductCard from '@/Components/ProductCard.vue';
 import type { PaginatedData, Product, Shop } from '@/types';
@@ -13,6 +14,9 @@ const props = defineProps<{
     search: string;
 }>();
 
+// Track which slug is currently being assigned to show a loading state
+const assigning = ref<string | null>(null);
+
 function onSearch(event: Event) {
     router.get('/owner/catalog', { search: (event.target as HTMLInputElement).value }, { preserveState: true, replace: true });
 }
@@ -22,8 +26,16 @@ function isAssigned(productId: number): boolean {
 }
 
 function assign(productSlug: string) {
-    const form = useForm({});
-    form.post(`/owner/catalog/assign/${productSlug}`);
+    if (assigning.value) return; // prevent double-click
+    assigning.value = productSlug;
+    router.post(
+        `/owner/catalog/assign/${productSlug}`,
+        {},
+        {
+            preserveScroll: true,
+            onFinish: () => { assigning.value = null; },
+        },
+    );
 }
 </script>
 
@@ -72,10 +84,11 @@ function assign(productSlug: string) {
                     <button
                         v-else-if="shop"
                         type="button"
-                        class="w-full text-xs py-1.5 px-3 rounded-md bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition-colors"
+                        :disabled="assigning === product.slug"
+                        class="w-full text-xs py-1.5 px-3 rounded-md bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition-colors disabled:opacity-60 disabled:cursor-wait"
                         @click="assign(product.slug)"
                     >
-                        Assign to My Shop
+                        {{ assigning === product.slug ? 'Assigning…' : 'Assign to My Shop' }}
                     </button>
                     <button
                         v-else

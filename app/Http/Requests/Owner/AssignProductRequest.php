@@ -17,7 +17,7 @@ class AssignProductRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'product_id' => ['required', 'exists:products,id'],
+            // Product is resolved via route model binding {product:slug} — no body validation needed.
         ];
     }
 }

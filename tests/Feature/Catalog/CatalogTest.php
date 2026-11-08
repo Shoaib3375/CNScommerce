@@ -4,7 +4,6 @@ namespace Tests\Feature\Catalog;
 
 use App\Models\Product;
 use App\Models\Shop;
-use App\Models\ShopProduct;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -41,8 +40,7 @@ class CatalogTest extends TestCase
 
         $response->assertStatus(200);
 
-        // Both products (one by ownerB) should be visible in the Inertia response
-        $products = $response->viewData('page')['props']['products']['data'] ?? [];
+        $products   = $response->viewData('page')['props']['products']['data'] ?? [];
         $productIds = array_column($products, 'id');
 
         $this->assertContains($this->productByB->id, $productIds);
@@ -52,9 +50,9 @@ class CatalogTest extends TestCase
     {
         $product = Product::factory()->create(['created_by' => $this->ownerA->id]);
 
+        // POST body is empty — product is identified via route slug
         $response = $this->actingAs($this->ownerA)->post(
-            "/owner/catalog/assign/{$product->slug}",
-            ['product_id' => $product->id]
+            "/owner/catalog/assign/{$product->slug}"
         );
 
         $response->assertRedirect();
@@ -69,18 +67,14 @@ class CatalogTest extends TestCase
         $product = Product::factory()->create(['created_by' => $this->ownerA->id]);
 
         // Assign once
-        $this->actingAs($this->ownerA)->post(
-            "/owner/catalog/assign/{$product->slug}",
-            ['product_id' => $product->id]
-        );
+        $this->actingAs($this->ownerA)->post("/owner/catalog/assign/{$product->slug}");
 
-        // Attempt duplicate assignment — Inertia converts ValidationException to a redirect back with session errors
+        // Attempt duplicate — CatalogService catches DB unique violation and throws
+        // ValidationException with key 'product_id'; Inertia flashes it as session errors
         $response = $this->actingAs($this->ownerA)->post(
-            "/owner/catalog/assign/{$product->slug}",
-            ['product_id' => $product->id]
+            "/owner/catalog/assign/{$product->slug}"
         );
 
-        // Inertia redirects back; the error is flashed to the session
         $response->assertRedirect();
         $response->assertSessionHasErrors('product_id');
     }
@@ -89,27 +83,23 @@ class CatalogTest extends TestCase
     {
         $product = Product::factory()->create(['created_by' => $this->ownerA->id]);
 
-        $this->actingAs($this->ownerA)->post(
-            "/owner/catalog/assign/{$product->slug}",
-            ['product_id' => $product->id]
-        );
+        $this->actingAs($this->ownerA)->post("/owner/catalog/assign/{$product->slug}");
 
         $this->assertTrue(
             $this->shopA->products()->where('products.id', $product->id)->exists()
         );
     }
 
-    public function test_shopless_owner_is_rejected_instead_of_404_when_assigning(): void
+    public function test_shopless_owner_gets_friendly_error_instead_of_404(): void
     {
         $shoplessOwner = User::factory()->shopOwner()->create();
-        $product = Product::factory()->create(['created_by' => $this->ownerA->id]);
+        $product       = Product::factory()->create(['created_by' => $this->ownerA->id]);
 
         $response = $this->actingAs($shoplessOwner)->post(
-            "/owner/catalog/assign/{$product->slug}",
-            ['product_id' => $product->id]
+            "/owner/catalog/assign/{$product->slug}"
         );
 
-        // Friendly redirect, not a 404
+        // Must be a redirect with a flash error, not a 404
         $response->assertRedirect();
         $response->assertSessionHas('error');
 
