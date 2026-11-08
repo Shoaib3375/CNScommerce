@@ -2,6 +2,11 @@
 
 namespace App\Providers;
 
+use App\Models\Product;
+use App\Models\Shop;
+use App\Policies\ProductPolicy;
+use App\Policies\ShopPolicy;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 
@@ -21,5 +26,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Vite::prefetch(concurrency: 3);
+
+        Gate::policy(Shop::class, ShopPolicy::class);
+        Gate::policy(Product::class, ProductPolicy::class);
     }
 }
