@@ -19,7 +19,7 @@ const form = useForm({
 });
 
 function submit() {
-    form.post(`/owner/products/${props.shopProduct.id}`, {
+    form.post(`/owner/shop-products/${props.shopProduct.id}`, {
         forceFormData: true,
     });
 }
@@ -28,7 +28,7 @@ function submit() {
 <template>
     <div class="max-w-2xl">
         <div class="flex items-center gap-3 mb-6">
-            <Link href="/owner/products" class="text-sm text-indigo-600 hover:text-indigo-800">← Back</Link>
+            <Link href="/owner/shop-products" class="text-sm text-indigo-600 hover:text-indigo-800">← Back</Link>
             <h1 class="text-2xl font-bold text-gray-900">Edit Assigned Product</h1>
         </div>
 
@@ -104,7 +104,7 @@ function submit() {
                 </div>
 
                 <div class="flex justify-end gap-3 pt-2">
-                    <Link href="/owner/products" class="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50">
+                    <Link href="/owner/shop-products" class="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50">
                         Cancel
                     </Link>
                     <button

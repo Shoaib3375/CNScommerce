@@ -24,7 +24,7 @@ function promptDelete(id: number) {
 
 function doDelete() {
     if (deleteTargetId.value === null) return;
-    deleteForm.delete(`/owner/products/${deleteTargetId.value}`, {
+    deleteForm.delete(`/owner/shop-products/${deleteTargetId.value}`, {
         onFinish: () => {
             confirmDelete.value = false;
             deleteTargetId.value = null;
@@ -62,7 +62,7 @@ function doDelete() {
                         <td class="px-4 py-3 text-right">
                             <div class="flex items-center justify-end gap-2">
                                 <Link
-                                    :href="`/owner/products/${sp.id}/edit`"
+                                    :href="`/owner/shop-products/${sp.id}/edit`"
                                     class="text-xs text-indigo-600 hover:text-indigo-900 font-medium"
                                 >
                                     Edit

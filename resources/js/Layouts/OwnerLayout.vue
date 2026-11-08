@@ -14,7 +14,7 @@ function logout() {
 const navItems = [
     { label: 'Dashboard', href: '/owner/dashboard' },
     { label: 'Browse Catalog', href: '/owner/catalog' },
-    { label: 'Assigned Products', href: '/owner/products' },
+    { label: 'Assigned Products', href: '/owner/shop-products' },
     { label: 'My Products', href: '/owner/my-products' },
 ];
 
