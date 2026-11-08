@@ -26,7 +26,7 @@ class ProductFactory extends Factory
             'slug'        => Str::slug($name.'-'.uniqid()),
             'description' => fake()->paragraph(),
             'base_price'  => fake()->randomFloat(2, 10, 500),
-            'thumbnail'   => null,
+            'thumbnail'   => 'https://picsum.photos/id/'.fake()->numberBetween(1, 500).'/600/600',
             'created_by'  => User::factory()->admin(),
         ];
     }

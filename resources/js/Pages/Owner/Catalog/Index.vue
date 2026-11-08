@@ -21,9 +21,9 @@ function isAssigned(productId: number): boolean {
     return props.assignedProductIds.includes(productId);
 }
 
-function assign(productId: number) {
+function assign(productSlug: string) {
     const form = useForm({});
-    form.post(`/owner/catalog/${productId}/assign`);
+    form.post(`/owner/catalog/assign/${productSlug}`);
 }
 </script>
 
@@ -73,7 +73,7 @@ function assign(productId: number) {
                         v-else-if="shop"
                         type="button"
                         class="w-full text-xs py-1.5 px-3 rounded-md bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition-colors"
-                        @click="assign(product.id)"
+                        @click="assign(product.slug)"
                     >
                         Assign to My Shop
                     </button>

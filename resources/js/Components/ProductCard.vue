@@ -6,6 +6,13 @@ const props = defineProps<{
     showShopPrice?: boolean;
 }>();
 
+/** Handles both external URLs (https://...) and local storage paths */
+function imgSrc(path: string | null): string | null {
+    if (!path) return null;
+    if (path.startsWith('http://') || path.startsWith('https://')) return path;
+    return `/storage/${path}`;
+}
+
 function isShopProduct(p: Product | ShopProduct): p is ShopProduct {
     return 'shop_id' in p;
 }
@@ -36,18 +43,18 @@ function getThumbnail(): string | null {
 </script>
 
 <template>
-    <div class="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
         <!-- Thumbnail -->
-        <div class="aspect-square bg-gray-100 flex items-center justify-center overflow-hidden">
+        <div class="aspect-square bg-gray-100 overflow-hidden">
             <img
-                v-if="getThumbnail()"
-                :src="`/storage/${getThumbnail()}`"
+                v-if="imgSrc(getThumbnail())"
+                :src="imgSrc(getThumbnail())!"
                 :alt="getName()"
                 class="w-full h-full object-cover"
             />
             <div
                 v-else
-                class="w-full h-full flex items-center justify-center text-gray-400"
+                class="w-full h-full flex items-center justify-center text-gray-300"
                 aria-hidden="true"
             >
                 <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -59,9 +66,7 @@ function getThumbnail(): string | null {
         <!-- Info -->
         <div class="p-4">
             <h3 class="text-sm font-semibold text-gray-900 truncate">{{ getName() }}</h3>
-            <p class="mt-1 text-sm font-medium text-indigo-600">
-                ${{ getPrice() }}
-            </p>
+            <p class="mt-1 text-sm font-bold text-indigo-600">${{ getPrice() }}</p>
             <slot />
         </div>
     </div>

@@ -11,14 +11,16 @@ const props = defineProps<{
     shopProduct: ShopProduct;
 }>();
 
-// Per spec: use shopProduct.thumbnail ?? product.thumbnail
-const displayThumbnail = props.shopProduct.thumbnail ?? props.product.thumbnail;
+function imgSrc(path: string | null): string | null {
+    if (!path) return null;
+    if (path.startsWith('http://') || path.startsWith('https://')) return path;
+    return `/storage/${path}`;
+}
 
-// Per spec: always show shopProduct.price, never base_price
-const displayPrice = props.shopProduct.price;
-
-// Per spec: shopProduct.description ?? product.description
-const displayDescription = props.shopProduct.description ?? props.product.description;
+// Per spec: shopProduct overrides take priority over global product fields
+const displayThumbnail = imgSrc(props.shopProduct.thumbnail ?? props.product.thumbnail);
+const displayPrice     = props.shopProduct.price;
+const displayDesc      = props.shopProduct.description ?? props.product.description;
 </script>
 
 <template>
@@ -33,9 +35,9 @@ const displayDescription = props.shopProduct.description ?? props.product.descri
             <div class="aspect-video bg-gray-100 flex items-center justify-center overflow-hidden">
                 <img
                     v-if="displayThumbnail"
-                    :src="`/storage/${displayThumbnail}`"
+                    :src="displayThumbnail"
                     :alt="product.name"
-                    class="w-full h-full object-contain"
+                    class="w-full h-full object-cover"
                 />
                 <div
                     v-else
@@ -57,8 +59,8 @@ const displayDescription = props.shopProduct.description ?? props.product.descri
                 <p class="mt-3 text-3xl font-semibold text-indigo-600">${{ displayPrice }}</p>
 
                 <!-- Description: shopProduct.description ?? product.description -->
-                <div v-if="displayDescription" class="mt-4 text-gray-600 leading-relaxed whitespace-pre-wrap">
-                    {{ displayDescription }}
+                <div v-if="displayDesc" class="mt-4 text-gray-600 leading-relaxed whitespace-pre-wrap">
+                    {{ displayDesc }}
                 </div>
                 <p v-else class="mt-4 text-gray-400 italic">No description available.</p>
             </div>
