@@ -42,7 +42,11 @@ class CatalogController extends Controller
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        $shop = $user->shops()->firstOrFail();
+        $shop = $user->shops()->first();
+
+        if (! $shop) {
+            return redirect()->back()->with('error', 'You do not have a shop to assign products to.');
+        }
 
         $this->catalogService->assignToShop($shop, $product, [
             'price'       => $product->base_price,

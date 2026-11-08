@@ -101,4 +101,16 @@ class ShopIsolationTest extends TestCase
         // Record must still exist
         $this->assertDatabaseHas('shop_products', ['id' => $this->shopProductBeta->id]);
     }
+
+    public function test_owner_cannot_delete_their_own_global_product(): void
+    {
+        // Product created by ownerA — only admins may delete global products,
+        // because deleting would break other shops' listings.
+        $product = Product::factory()->create(['created_by' => $this->ownerA->id]);
+
+        $response = $this->actingAs($this->ownerA)->delete("/owner/my-products/{$product->id}");
+
+        $response->assertStatus(403);
+        $this->assertDatabaseHas('products', ['id' => $product->id]);
+    }
 }

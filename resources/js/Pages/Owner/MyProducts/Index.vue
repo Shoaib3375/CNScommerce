@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { Link, useForm } from '@inertiajs/vue3';
+import { Link } from '@inertiajs/vue3';
 import OwnerLayout from '@/Layouts/OwnerLayout.vue';
-import ConfirmDialog from '@/Components/ConfirmDialog.vue';
 import Pagination from '@/Components/Pagination.vue';
 import type { PaginatedData, Product } from '@/types';
 
@@ -11,25 +9,6 @@ defineOptions({ layout: OwnerLayout });
 defineProps<{
     products: PaginatedData<Product>;
 }>();
-
-const confirmDelete = ref(false);
-const deleteTargetId = ref<number | null>(null);
-const deleteForm = useForm({});
-
-function promptDelete(id: number) {
-    deleteTargetId.value = id;
-    confirmDelete.value = true;
-}
-
-function doDelete() {
-    if (deleteTargetId.value === null) return;
-    deleteForm.delete(`/owner/my-products/${deleteTargetId.value}`, {
-        onFinish: () => {
-            confirmDelete.value = false;
-            deleteTargetId.value = null;
-        },
-    });
-}
 </script>
 
 <template>
@@ -43,6 +22,11 @@ function doDelete() {
                 + Add Product
             </Link>
         </div>
+
+        <p class="mb-4 text-sm text-gray-500">
+            Products you create are added to the shared catalog and may be listed by other shops.
+            Only administrators can delete global products — contact an admin if a product must be removed.
+        </p>
 
         <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
             <table class="min-w-full divide-y divide-gray-200">
@@ -75,21 +59,12 @@ function doDelete() {
                         <td class="px-4 py-3 text-sm text-gray-900">{{ product.name }}</td>
                         <td class="px-4 py-3 text-sm text-gray-900">${{ product.base_price }}</td>
                         <td class="px-4 py-3 text-right">
-                            <div class="flex items-center justify-end gap-2">
-                                <Link
-                                    :href="`/owner/my-products/${product.id}/edit`"
-                                    class="text-xs text-indigo-600 hover:text-indigo-900 font-medium"
-                                >
-                                    Edit
-                                </Link>
-                                <button
-                                    type="button"
-                                    class="text-xs text-red-600 hover:text-red-900 font-medium"
-                                    @click="promptDelete(product.id)"
-                                >
-                                    Delete
-                                </button>
-                            </div>
+                            <Link
+                                :href="`/owner/my-products/${product.id}/edit`"
+                                class="text-xs text-indigo-600 hover:text-indigo-900 font-medium"
+                            >
+                                Edit
+                            </Link>
                         </td>
                     </tr>
                 </tbody>
@@ -97,12 +72,5 @@ function doDelete() {
         </div>
 
         <Pagination :links="products.links" />
-
-        <ConfirmDialog
-            :show="confirmDelete"
-            message="Are you sure you want to delete this product?"
-            @confirm="doDelete"
-            @cancel="confirmDelete = false"
-        />
     </div>
 </template>

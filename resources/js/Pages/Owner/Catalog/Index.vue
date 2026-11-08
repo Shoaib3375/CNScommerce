@@ -42,6 +42,13 @@ function assign(productId: number) {
             </div>
         </div>
 
+        <div
+            v-if="!shop"
+            class="mb-6 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"
+        >
+            You don't have a shop yet, so you can't assign products. Please contact an administrator to have a shop assigned to your account.
+        </div>
+
         <div v-if="products.data.length === 0" class="text-center py-12 text-gray-500">
             No products found in the catalog.
         </div>
@@ -63,12 +70,20 @@ function assign(productId: number) {
                         ✓ Assigned
                     </button>
                     <button
-                        v-else
+                        v-else-if="shop"
                         type="button"
                         class="w-full text-xs py-1.5 px-3 rounded-md bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition-colors"
                         @click="assign(product.id)"
                     >
                         Assign to My Shop
+                    </button>
+                    <button
+                        v-else
+                        type="button"
+                        disabled
+                        class="w-full text-xs py-1.5 px-3 rounded-md bg-gray-100 text-gray-400 font-medium cursor-not-allowed"
+                    >
+                        No Shop
                     </button>
                 </div>
             </ProductCard>

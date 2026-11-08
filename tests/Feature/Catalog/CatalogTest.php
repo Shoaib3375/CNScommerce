@@ -98,4 +98,21 @@ class CatalogTest extends TestCase
             $this->shopA->products()->where('products.id', $product->id)->exists()
         );
     }
+
+    public function test_shopless_owner_is_rejected_instead_of_404_when_assigning(): void
+    {
+        $shoplessOwner = User::factory()->shopOwner()->create();
+        $product = Product::factory()->create(['created_by' => $this->ownerA->id]);
+
+        $response = $this->actingAs($shoplessOwner)->post(
+            "/owner/catalog/assign/{$product->slug}",
+            ['product_id' => $product->id]
+        );
+
+        // Friendly redirect, not a 404
+        $response->assertRedirect();
+        $response->assertSessionHas('error');
+
+        $this->assertDatabaseMissing('shop_products', ['product_id' => $product->id]);
+    }
 }
