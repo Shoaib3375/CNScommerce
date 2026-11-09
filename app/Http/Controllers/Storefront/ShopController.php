@@ -13,9 +13,7 @@ class ShopController extends Controller
     public function index(): Response
     {
         $shops = Shop::where('status', true)
-            ->withCount(['products as active_products_count' => function ($q) {
-                $q->where('shop_products.is_active', true);
-            }])
+            ->withCount(['products as active_products_count' => fn ($q) => $q->where('shop_products.is_active', true)])
             ->paginate(12);
 
         // Featured products: latest active shop_products with their global product + shop
@@ -27,7 +25,7 @@ class ShopController extends Controller
             ->get();
 
         return Inertia::render('Storefront/Home', [
-            'shops'    => $shops,
+            'shops' => $shops,
             'featured' => $featured,
         ]);
     }
@@ -41,7 +39,7 @@ class ShopController extends Controller
             ->paginate(12);
 
         return Inertia::render('Storefront/ShopShow', [
-            'shop'     => $shop,
+            'shop' => $shop,
             'products' => $products,
         ]);
     }

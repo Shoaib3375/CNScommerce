@@ -4,11 +4,12 @@ use App\Http\Controllers\Admin;
 use App\Http\Controllers\Owner;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Storefront;
-use Illuminate\Support\Facades\Route;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 // ---------------------------------------------------------------------------
-// Storefront — public routes
+// Storefront — public routes (kept for Inertia SSR compatibility / tests)
 // ---------------------------------------------------------------------------
 
 Route::get('/', [Storefront\ShopController::class, 'index'])
@@ -20,16 +21,12 @@ Route::get('/shop/{shop:slug}', [Storefront\ShopController::class, 'show'])
 Route::get('/shop/{shop:slug}/products/{product:slug}', [Storefront\ProductController::class, 'show'])
     ->name('storefront.product.show');
 
-// Live product search (JSON)
-Route::get('/api/search', Storefront\SearchController::class)
-    ->name('storefront.search');
-
 // ---------------------------------------------------------------------------
 // Generic dashboard redirect — used by Breeze auth controllers after login
 // ---------------------------------------------------------------------------
 
 Route::get('/dashboard', function (Request $request) {
-    /** @var \App\Models\User|null $user */
+    /** @var User|null $user */
     $user = $request->user();
 
     if ($user && $user->isAdmin()) {
@@ -100,3 +97,12 @@ Route::prefix('owner')
         Route::resource('my-products', Owner\ProductController::class)
             ->except(['show']);
     });
+
+// ---------------------------------------------------------------------------
+// SPA catch-all — must be last
+// ---------------------------------------------------------------------------
+
+// Registration is disabled — explicitly 404 so tests and SPA both behave correctly.
+Route::get('/register', fn () => abort(404));
+
+Route::get('/{any}', fn () => view('app'))->where('any', '.*')->name('spa');
