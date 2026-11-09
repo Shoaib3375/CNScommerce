@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { Link, router } from '@inertiajs/vue3';
+import { ref, watch, onMounted, onUnmounted } from 'vue';
+import { Link } from '@inertiajs/vue3';
 import StorefrontLayout from '@/Layouts/StorefrontLayout.vue';
 import type { PaginatedData, Shop, ShopProduct } from '@/types';
 
@@ -11,19 +11,64 @@ defineProps<{
     featured: ShopProduct[];
 }>();
 
-const search = ref('');
-
-function onSearch() {
-    if (search.value.trim()) {
-        router.get('/', { search: search.value });
-    }
+// ── Live search ──────────────────────────────────────────────────────────
+interface SearchResult {
+    id: number;
+    price: string;
+    thumbnail: string | null;
+    product: { name: string; slug: string };
+    shop: { name: string; slug: string };
 }
+
+const search      = ref('');
+const results     = ref<SearchResult[]>([]);
+const loading     = ref(false);
+const showDropdown = ref(false);
+const searchRef   = ref<HTMLElement | null>(null);
+let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
 function imgSrc(path: string | null | undefined): string | null {
     if (!path) return null;
     if (path.startsWith('http://') || path.startsWith('https://')) return path;
     return `/storage/${path}`;
 }
+
+async function doSearch(q: string) {
+    if (q.length < 2) {
+        results.value  = [];
+        showDropdown.value = false;
+        return;
+    }
+    loading.value = true;
+    try {
+        const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
+        results.value  = await res.json();
+        showDropdown.value = true;
+    } catch {
+        results.value = [];
+    } finally {
+        loading.value = false;
+    }
+}
+
+watch(search, (val) => {
+    if (debounceTimer) clearTimeout(debounceTimer);
+    if (val.trim().length < 2) {
+        results.value = [];
+        showDropdown.value = false;
+        return;
+    }
+    debounceTimer = setTimeout(() => doSearch(val.trim()), 300);
+});
+
+function closeDropdown() { showDropdown.value = false; }
+function onClickOutside(e: MouseEvent) {
+    if (searchRef.value && !searchRef.value.contains(e.target as Node)) {
+        closeDropdown();
+    }
+}
+onMounted(() => document.addEventListener('mousedown', onClickOutside));
+onUnmounted(() => document.removeEventListener('mousedown', onClickOutside));
 
 const stats = [
     { icon: '🏪', value: '5+',   label: 'Shops' },
@@ -50,26 +95,97 @@ const stats = [
                         Find products from independent shops, all in one place.
                     </p>
 
-                    <!-- Search bar -->
-                    <form class="mt-6 flex items-center gap-2 max-w-md mx-auto md:mx-0" @submit.prevent="onSearch">
-                        <div class="flex-1 flex items-center bg-white border border-gray-300 rounded-lg px-3 py-2 shadow-sm">
-                            <svg class="w-4 h-4 text-gray-400 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <!-- Live search bar -->
+                    <div ref="searchRef" class="relative mt-6 max-w-md mx-auto md:mx-0">
+                        <div class="flex items-center bg-white border border-gray-300 rounded-xl px-4 py-3 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-transparent transition">
+                            <!-- Search icon / spinner -->
+                            <svg v-if="!loading" class="w-4 h-4 text-gray-400 mr-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 111 11a6 6 0 0116 0z"/>
+                            </svg>
+                            <svg v-else class="w-4 h-4 text-indigo-500 mr-3 shrink-0 animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
                             </svg>
                             <input
                                 v-model="search"
                                 type="text"
-                                placeholder="Search products or shops…"
-                                class="flex-1 text-sm outline-none bg-transparent"
+                                placeholder="Search products… e.g. Laptop, Headphones"
+                                class="flex-1 text-sm outline-none bg-transparent text-gray-800 placeholder-gray-400"
+                                @focus="search.length >= 2 && (showDropdown = true)"
                             />
+                            <button
+                                v-if="search"
+                                type="button"
+                                class="ml-2 text-gray-400 hover:text-gray-600 transition-colors"
+                                @click="search = ''; results = []; showDropdown = false"
+                            >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
                         </div>
-                        <button
-                            type="submit"
-                            class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors"
+
+                        <!-- Results dropdown -->
+                        <Transition
+                            enter-active-class="transition ease-out duration-150"
+                            enter-from-class="opacity-0 translate-y-1"
+                            enter-to-class="opacity-100 translate-y-0"
+                            leave-active-class="transition ease-in duration-100"
+                            leave-from-class="opacity-100"
+                            leave-to-class="opacity-0"
                         >
-                            Search
-                        </button>
-                    </form>
+                            <div
+                                v-if="showDropdown"
+                                class="absolute z-50 w-full mt-2 bg-white rounded-2xl border border-gray-200 shadow-2xl overflow-hidden"
+                            >
+                                <!-- No results -->
+                                <div v-if="results.length === 0 && !loading" class="px-5 py-8 text-center">
+                                    <p class="text-sm font-medium text-gray-500">No products found for "<span class="text-indigo-600">{{ search }}</span>"</p>
+                                    <p class="text-xs text-gray-400 mt-1">Try a different keyword</p>
+                                </div>
+
+                                <!-- Result list -->
+                                <ul v-else class="divide-y divide-gray-50 max-h-80 overflow-y-auto">
+                                    <li v-for="r in results" :key="r.id">
+                                        <Link
+                                            :href="`/shop/${r.shop.slug}/products/${r.product.slug}`"
+                                            class="flex items-center gap-3 px-4 py-3 hover:bg-indigo-50 transition-colors group"
+                                            @click="closeDropdown"
+                                        >
+                                            <!-- Thumbnail -->
+                                            <div class="w-12 h-12 rounded-xl overflow-hidden bg-gray-100 shrink-0">
+                                                <img
+                                                    v-if="imgSrc(r.thumbnail)"
+                                                    :src="imgSrc(r.thumbnail)!"
+                                                    :alt="r.product.name"
+                                                    class="w-full h-full object-cover"
+                                                />
+                                                <div v-else class="w-full h-full flex items-center justify-center text-gray-300 text-lg">📦</div>
+                                            </div>
+
+                                            <!-- Info -->
+                                            <div class="flex-1 min-w-0">
+                                                <p class="text-sm font-semibold text-gray-900 truncate group-hover:text-indigo-600 transition-colors">
+                                                    {{ r.product.name }}
+                                                </p>
+                                                <p class="text-xs text-gray-400 mt-0.5 flex items-center gap-1">
+                                                    <span>🏪</span> {{ r.shop.name }}
+                                                </p>
+                                            </div>
+
+                                            <!-- Price -->
+                                            <span class="text-sm font-bold text-indigo-600 shrink-0">${{ r.price }}</span>
+                                        </Link>
+                                    </li>
+                                </ul>
+
+                                <!-- Footer hint -->
+                                <div v-if="results.length > 0" class="px-4 py-2.5 bg-gray-50 border-t border-gray-100 text-center">
+                                    <p class="text-xs text-gray-400">{{ results.length }} result{{ results.length !== 1 ? 's' : '' }} found</p>
+                                </div>
+                            </div>
+                        </Transition>
+                    </div>
 
                     <!-- Quick stats -->
                     <div class="mt-8 flex flex-wrap gap-5 justify-center md:justify-start">

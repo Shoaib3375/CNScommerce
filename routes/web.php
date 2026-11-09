@@ -20,6 +20,10 @@ Route::get('/shop/{shop:slug}', [Storefront\ShopController::class, 'show'])
 Route::get('/shop/{shop:slug}/products/{product:slug}', [Storefront\ProductController::class, 'show'])
     ->name('storefront.product.show');
 
+// Live product search (JSON)
+Route::get('/api/search', Storefront\SearchController::class)
+    ->name('storefront.search');
+
 // ---------------------------------------------------------------------------
 // Generic dashboard redirect — used by Breeze auth controllers after login
 // ---------------------------------------------------------------------------
