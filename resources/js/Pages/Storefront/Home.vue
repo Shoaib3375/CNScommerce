@@ -256,11 +256,19 @@ const stats = [
                             CNS Commerce connects you with independent shops offering unique products at competitive shop-specific prices.
                         </p>
 
-                        <!-- Stats row -->
+                        <!-- Stats row — different metrics from the hero -->
                         <div class="mt-10 grid grid-cols-3 gap-6">
-                            <div v-for="s in stats" :key="s.label" class="text-center">
-                                <p class="text-3xl font-extrabold text-white">{{ s.value }}</p>
-                                <p class="text-xs text-gray-500 mt-1">{{ s.label }}</p>
+                            <div class="text-center">
+                                <p class="text-3xl font-extrabold text-white">99%</p>
+                                <p class="text-xs text-gray-500 mt-1">Satisfaction Rate</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-3xl font-extrabold text-white">24/7</p>
+                                <p class="text-xs text-gray-500 mt-1">Platform Uptime</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-3xl font-extrabold text-white">0%</p>
+                                <p class="text-xs text-gray-500 mt-1">Hidden Fees</p>
                             </div>
                         </div>
 
