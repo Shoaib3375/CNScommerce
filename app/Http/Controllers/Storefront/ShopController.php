@@ -14,7 +14,7 @@ class ShopController extends Controller
     {
         $shops = Shop::where('status', true)
             ->withCount(['products as active_products_count' => function ($q) {
-                $q->wherePivot('is_active', true);
+                $q->where('shop_products.is_active', true);
             }])
             ->paginate(12);
 
