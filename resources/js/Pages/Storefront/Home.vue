@@ -30,12 +30,6 @@ const stats = [
     { icon: '📦', value: '500+', label: 'Products' },
     { icon: '👥', value: '10K+', label: 'Happy Customers' },
 ];
-
-const features = [
-    { icon: '🏬', title: 'Multiple Shops',      desc: 'Explore products from various shops' },
-    { icon: '🛡️', title: 'Trusted Platform',    desc: 'Secure and reliable shopping experience' },
-    { icon: '💰', title: 'Shop-specific Pricing', desc: 'Get the best prices from each shop' },
-];
 </script>
 
 <template>
@@ -237,21 +231,87 @@ const features = [
         </section>
 
         <!-- ─── WHY US ─────────────────────────────────────────────── -->
-        <section class="py-14 px-4 bg-gradient-to-r from-indigo-600 to-blue-600">
-            <div class="mx-auto max-w-7xl">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-8 items-center">
+        <section class="py-20 px-4 bg-gray-950 relative overflow-hidden">
+            <!-- Background decoration -->
+            <div class="absolute inset-0 pointer-events-none">
+                <div class="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent" />
+                <div class="absolute -top-40 -left-40 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl" />
+                <div class="absolute -bottom-40 -right-40 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl" />
+            </div>
+
+            <div class="mx-auto max-w-7xl relative">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+
+                    <!-- Left: copy -->
                     <div>
-                        <h2 class="text-2xl font-bold text-white">Why CNS Commerce?</h2>
-                        <p class="mt-2 text-indigo-200 text-sm">A better way to shop online</p>
+                        <span class="inline-flex items-center gap-2 text-xs font-semibold text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-3 py-1.5 rounded-full mb-6">
+                            <span class="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-pulse" />
+                            Why choose us
+                        </span>
+                        <h2 class="text-4xl sm:text-5xl font-extrabold text-white leading-tight">
+                            A smarter way<br />
+                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-blue-400">to shop online.</span>
+                        </h2>
+                        <p class="mt-5 text-gray-400 text-lg leading-relaxed max-w-md">
+                            CNS Commerce connects you with independent shops offering unique products at competitive shop-specific prices.
+                        </p>
+
+                        <!-- Stats row -->
+                        <div class="mt-10 grid grid-cols-3 gap-6">
+                            <div v-for="s in stats" :key="s.label" class="text-center">
+                                <p class="text-3xl font-extrabold text-white">{{ s.value }}</p>
+                                <p class="text-xs text-gray-500 mt-1">{{ s.label }}</p>
+                            </div>
+                        </div>
+
+                        <Link href="/" class="mt-10 inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-6 py-3 rounded-xl transition-colors shadow-lg shadow-indigo-600/20">
+                            Explore All Shops
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                            </svg>
+                        </Link>
                     </div>
-                    <div
-                        v-for="f in features"
-                        :key="f.title"
-                        class="flex flex-col items-center text-center p-4 bg-white/10 rounded-2xl"
-                    >
-                        <span class="text-3xl mb-2">{{ f.icon }}</span>
-                        <h3 class="text-white font-semibold text-sm">{{ f.title }}</h3>
-                        <p class="text-indigo-200 text-xs mt-1">{{ f.desc }}</p>
+
+                    <!-- Right: feature cards -->
+                    <div class="grid grid-cols-1 gap-4">
+                        <!-- Card 1 -->
+                        <div class="flex items-start gap-5 bg-white/5 hover:bg-white/8 border border-white/10 rounded-2xl p-6 transition-colors group">
+                            <div class="w-12 h-12 rounded-xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center shrink-0 group-hover:bg-indigo-500/30 transition-colors">
+                                <svg class="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-white font-semibold text-base">Multiple Independent Shops</h3>
+                                <p class="text-gray-400 text-sm mt-1.5 leading-relaxed">Browse products from dozens of curated shops, each with their own unique catalog and pricing.</p>
+                            </div>
+                        </div>
+
+                        <!-- Card 2 -->
+                        <div class="flex items-start gap-5 bg-white/5 hover:bg-white/8 border border-white/10 rounded-2xl p-6 transition-colors group">
+                            <div class="w-12 h-12 rounded-xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center shrink-0 group-hover:bg-blue-500/30 transition-colors">
+                                <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-white font-semibold text-base">Trusted & Secure Platform</h3>
+                                <p class="text-gray-400 text-sm mt-1.5 leading-relaxed">Every shop is verified. Your data is protected and transactions are handled with care.</p>
+                            </div>
+                        </div>
+
+                        <!-- Card 3 -->
+                        <div class="flex items-start gap-5 bg-white/5 hover:bg-white/8 border border-white/10 rounded-2xl p-6 transition-colors group">
+                            <div class="w-12 h-12 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center shrink-0 group-hover:bg-emerald-500/30 transition-colors">
+                                <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-white font-semibold text-base">Shop-specific Pricing</h3>
+                                <p class="text-gray-400 text-sm mt-1.5 leading-relaxed">Each shop sets its own prices. Compare listings and always get the best deal for your budget.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

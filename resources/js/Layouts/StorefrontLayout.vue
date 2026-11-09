@@ -107,73 +107,97 @@ const footerResources  = ['FAQ', 'Privacy Policy', 'Terms of Service', 'Support'
             <slot />
         </main>
         <!-- ─── FOOTER ───────────────────────────────────────── -->
-        <footer class="bg-gray-900 text-gray-300">
-            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <footer class="bg-gray-950 text-gray-400 relative">
+            <!-- Top gradient edge -->
+            <div class="h-px w-full bg-gradient-to-r from-transparent via-indigo-500/40 to-transparent" />
 
-                    <!-- Brand -->
-                    <div>
-                        <div class="flex items-center gap-2 mb-3">
-                            <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">C</div>
-                            <span class="font-bold text-white text-lg">CNS Commerce</span>
-                        </div>
-                        <p class="text-sm text-gray-400">Shop Smart. Shop Local.</p>
-                        <div class="flex gap-3 mt-4">
-                            <a href="#" class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-gray-400 hover:bg-indigo-600 hover:text-white transition-colors text-sm">f</a>
-                            <a href="#" class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-gray-400 hover:bg-indigo-600 hover:text-white transition-colors text-sm">▶</a>
-                            <a href="#" class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-gray-400 hover:bg-indigo-600 hover:text-white transition-colors text-sm">𝕏</a>
-                            <a href="#" class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-gray-400 hover:bg-indigo-600 hover:text-white transition-colors text-sm">⌥</a>
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-14 pb-8">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
+
+                    <!-- Brand col -->
+                    <div class="sm:col-span-2 lg:col-span-1">
+                        <Link href="/" class="flex items-center gap-2.5 mb-4 w-fit">
+                            <div class="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black text-base shadow-lg shadow-indigo-600/30">C</div>
+                            <span class="font-bold text-white text-lg tracking-tight">CNS Commerce</span>
+                        </Link>
+                        <p class="text-sm text-gray-500 leading-relaxed max-w-xs">
+                            Connecting shoppers with independent shop owners. Quality products, competitive prices, all in one place.
+                        </p>
+                        <!-- Social icons with real SVGs -->
+                        <div class="flex gap-2.5 mt-5">
+                            <a href="#" aria-label="Facebook" class="w-9 h-9 rounded-xl bg-gray-800 hover:bg-indigo-600 flex items-center justify-center text-gray-400 hover:text-white transition-all hover:shadow-md hover:shadow-indigo-600/20">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+                            </a>
+                            <a href="#" aria-label="Twitter/X" class="w-9 h-9 rounded-xl bg-gray-800 hover:bg-indigo-600 flex items-center justify-center text-gray-400 hover:text-white transition-all hover:shadow-md hover:shadow-indigo-600/20">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                            </a>
+                            <a href="#" aria-label="YouTube" class="w-9 h-9 rounded-xl bg-gray-800 hover:bg-indigo-600 flex items-center justify-center text-gray-400 hover:text-white transition-all hover:shadow-md hover:shadow-indigo-600/20">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M22.54 6.42a2.78 2.78 0 00-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 00-1.95 1.96A29 29 0 001 12a29 29 0 00.46 5.58A2.78 2.78 0 003.41 19.6C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 001.95-1.95A29 29 0 0023 12a29 29 0 00-.46-5.58zM9.75 15.02V8.98L15.5 12l-5.75 3.02z"/></svg>
+                            </a>
+                            <a href="#" aria-label="GitHub" class="w-9 h-9 rounded-xl bg-gray-800 hover:bg-indigo-600 flex items-center justify-center text-gray-400 hover:text-white transition-all hover:shadow-md hover:shadow-indigo-600/20">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg>
+                            </a>
                         </div>
                     </div>
 
                     <!-- Quick links -->
                     <div>
-                        <h4 class="text-white font-semibold mb-4">Quick Links</h4>
-                        <ul class="space-y-2">
+                        <h4 class="text-white font-semibold text-sm mb-5 uppercase tracking-wider">Quick Links</h4>
+                        <ul class="space-y-3">
                             <li v-for="l in footerQuickLinks" :key="l">
-                                <Link href="/" class="text-sm text-gray-400 hover:text-white transition-colors">{{ l }}</Link>
+                                <Link href="/" class="text-sm text-gray-500 hover:text-white transition-colors flex items-center gap-1.5 group">
+                                    <span class="w-1 h-1 rounded-full bg-gray-600 group-hover:bg-indigo-400 transition-colors" />
+                                    {{ l }}
+                                </Link>
                             </li>
                         </ul>
                     </div>
 
                     <!-- Resources -->
                     <div>
-                        <h4 class="text-white font-semibold mb-4">Resources</h4>
-                        <ul class="space-y-2">
+                        <h4 class="text-white font-semibold text-sm mb-5 uppercase tracking-wider">Resources</h4>
+                        <ul class="space-y-3">
                             <li v-for="r in footerResources" :key="r">
-                                <a href="#" class="text-sm text-gray-400 hover:text-white transition-colors">{{ r }}</a>
+                                <a href="#" class="text-sm text-gray-500 hover:text-white transition-colors flex items-center gap-1.5 group">
+                                    <span class="w-1 h-1 rounded-full bg-gray-600 group-hover:bg-indigo-400 transition-colors" />
+                                    {{ r }}
+                                </a>
                             </li>
                         </ul>
                     </div>
 
                     <!-- Newsletter -->
                     <div>
-                        <h4 class="text-white font-semibold mb-4">Stay Connected</h4>
-                        <p class="text-sm text-gray-400 mb-3">Subscribe to our newsletter</p>
-                        <form class="flex gap-2" @submit.prevent>
+                        <h4 class="text-white font-semibold text-sm mb-5 uppercase tracking-wider">Stay Connected</h4>
+                        <p class="text-sm text-gray-500 mb-4 leading-relaxed">Get the latest updates and offers directly to your inbox.</p>
+                        <form class="space-y-2" @submit.prevent>
                             <input
                                 type="email"
-                                placeholder="Your email address"
-                                class="flex-1 text-sm bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-gray-300 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                placeholder="your@email.com"
+                                class="w-full text-sm bg-gray-800/80 border border-gray-700 rounded-xl px-4 py-2.5 text-gray-300 placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
                             />
                             <button
                                 type="submit"
-                                class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors shrink-0"
+                                class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors shadow-sm shadow-indigo-600/20"
                             >
-                                Subscribe
+                                Subscribe →
                             </button>
                         </form>
                     </div>
                 </div>
 
-                <!-- Bottom bar -->
-                <div class="border-t border-gray-800 mt-10 pt-6 flex flex-col sm:flex-row justify-between items-center gap-3">
-                    <p class="text-xs text-gray-500">
+                <!-- Divider -->
+                <div class="mt-12 pt-6 border-t border-gray-800/80 flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <p class="text-xs text-gray-600">
                         © {{ new Date().getFullYear() }} CNS Commerce. All rights reserved.
                     </p>
-                    <p class="text-xs text-gray-500">
-                        Built with ❤️ using Laravel + Vue.js
-                    </p>
+                    <div class="flex items-center gap-4">
+                        <a href="#" class="text-xs text-gray-600 hover:text-gray-400 transition-colors">Privacy</a>
+                        <a href="#" class="text-xs text-gray-600 hover:text-gray-400 transition-colors">Terms</a>
+                        <p class="text-xs text-gray-600">
+                            Built with <span class="text-red-500">♥</span> using Laravel + Vue.js
+                        </p>
+                    </div>
                 </div>
             </div>
         </footer>
