@@ -21,6 +21,18 @@ function doDelete() {
         onFinish: () => { confirmDelete.value = false; deleteTargetId.value = null; },
     });
 }
+
+/** Handles both external URLs and local /storage/ paths */
+function imgSrc(path: string | null | undefined): string | null {
+    if (!path) return null;
+    if (path.startsWith('http://') || path.startsWith('https://')) return path;
+    return `/storage/${path}`;
+}
+
+function thumbnail(sp: ShopProduct): string | null {
+    // pivot thumbnail overrides the global product thumbnail
+    return imgSrc(sp.thumbnail ?? sp.product?.thumbnail ?? null);
+}
 </script>
 
 <template>
@@ -32,57 +44,93 @@ function doDelete() {
                 <h1 class="text-2xl font-bold text-gray-900">Assigned Products</h1>
                 <p class="text-sm text-gray-500 mt-0.5">Customize pricing and details for your shop.</p>
             </div>
-            <Link href="/owner/catalog" class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-sm transition-colors">
+            <Link
+                href="/owner/catalog"
+                class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-sm transition-colors"
+            >
                 🗂️ Browse Catalog
             </Link>
         </div>
 
-        <!-- Table -->
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-100">
-                    <thead>
-                        <tr class="bg-gradient-to-r from-slate-50 to-gray-50">
-                            <th class="px-5 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Product</th>
-                            <th class="px-5 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Custom Price</th>
-                            <th class="px-5 py-3.5 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                            <th class="px-5 py-3.5 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-50">
-                        <tr v-if="shopProducts.data.length === 0">
-                            <td colspan="4" class="px-5 py-14 text-center">
-                                <div class="flex flex-col items-center gap-2 text-gray-400">
-                                    <span class="text-4xl">📋</span>
-                                    <p class="text-sm font-medium">No products assigned yet.</p>
-                                    <Link href="/owner/catalog" class="text-xs text-blue-600 hover:text-blue-800 font-semibold">Browse the catalog →</Link>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr v-for="sp in shopProducts.data" :key="sp.id" class="hover:bg-blue-50/30 transition-colors">
-                            <td class="px-5 py-3.5 text-sm font-medium text-gray-900">
-                                {{ sp.product?.name ?? '—' }}
-                            </td>
-                            <td class="px-5 py-3.5">
-                                <span class="text-sm font-bold text-blue-600">${{ sp.price }}</span>
-                            </td>
-                            <td class="px-5 py-3.5">
-                                <StatusBadge :active="sp.is_active" />
-                            </td>
-                            <td class="px-5 py-3.5 text-right">
-                                <div class="flex items-center justify-end gap-3">
-                                    <Link :href="`/owner/shop-products/${sp.id}/edit`" class="text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors">Edit</Link>
-                                    <button type="button" class="text-xs font-semibold text-red-500 hover:text-red-700 transition-colors" @click="promptDelete(sp.id)">Unassign</button>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+        <!-- Empty state -->
+        <div v-if="shopProducts.data.length === 0" class="bg-white rounded-2xl border border-gray-100 shadow-sm py-20 text-center">
+            <div class="text-5xl mb-3">📋</div>
+            <p class="text-sm font-medium text-gray-500 mb-2">No products assigned yet.</p>
+            <Link href="/owner/catalog" class="text-sm font-semibold text-blue-600 hover:text-blue-800">
+                Browse the catalog →
+            </Link>
+        </div>
+
+        <!-- Card grid -->
+        <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+            <div
+                v-for="sp in shopProducts.data"
+                :key="sp.id"
+                class="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col"
+            >
+                <!-- Product image -->
+                <div class="aspect-square overflow-hidden bg-gray-50 relative">
+                    <img
+                        v-if="thumbnail(sp)"
+                        :src="thumbnail(sp)!"
+                        :alt="sp.product?.name"
+                        class="w-full h-full object-cover"
+                    />
+                    <div
+                        v-else
+                        class="w-full h-full flex items-center justify-center text-gray-200"
+                    >
+                        <svg class="w-14 h-14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+
+                    <!-- Status badge overlay -->
+                    <div class="absolute top-2 right-2">
+                        <StatusBadge :active="sp.is_active" />
+                    </div>
+                </div>
+
+                <!-- Info -->
+                <div class="p-4 flex flex-col flex-1">
+                    <h3 class="text-sm font-semibold text-gray-900 truncate">
+                        {{ sp.product?.name ?? '—' }}
+                    </h3>
+                    <p class="mt-1 text-base font-bold text-blue-600">${{ sp.price }}</p>
+                    <p
+                        v-if="sp.product?.base_price && sp.price !== sp.product.base_price"
+                        class="text-xs text-gray-400 line-through"
+                    >
+                        Base: ${{ sp.product.base_price }}
+                    </p>
+
+                    <!-- Actions pushed to bottom -->
+                    <div class="mt-auto pt-3 flex gap-2">
+                        <Link
+                            :href="`/owner/shop-products/${sp.id}/edit`"
+                            class="flex-1 text-center text-xs font-semibold py-2 rounded-xl bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
+                        >
+                            ✏️ Edit
+                        </Link>
+                        <button
+                            type="button"
+                            class="flex-1 text-xs font-semibold py-2 rounded-xl bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+                            @click="promptDelete(sp.id)"
+                        >
+                            🗑️ Unassign
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <Pagination :links="shopProducts.links" class="mt-4" />
+        <Pagination :links="shopProducts.links" class="mt-6" />
 
-        <ConfirmDialog :show="confirmDelete" message="Unassign this product from your shop?" @confirm="doDelete" @cancel="confirmDelete = false" />
+        <ConfirmDialog
+            :show="confirmDelete"
+            message="Unassign this product from your shop? It will no longer appear in your storefront."
+            @confirm="doDelete"
+            @cancel="confirmDelete = false"
+        />
     </div>
 </template>
