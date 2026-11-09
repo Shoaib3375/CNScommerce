@@ -24,7 +24,7 @@ const displayDesc      = props.shopProduct.description ?? props.product.descript
 </script>
 
 <template>
-    <div class="max-w-3xl mx-auto">
+    <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-10">
         <!-- Back link -->
         <Link :href="`/shop/${shop.slug}`" class="text-sm text-indigo-600 hover:text-indigo-800">
             ← Back to {{ shop.name }}

@@ -39,7 +39,7 @@ function price(p: ProductWithPivot): string {
 </script>
 
 <template>
-    <div>
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
         <!-- Shop header -->
         <div class="mb-8">
             <Link href="/" class="text-sm text-indigo-600 hover:text-indigo-800">← All Shops</Link>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Storefront;
 
 use App\Http\Controllers\Controller;
 use App\Models\Shop;
+use App\Models\ShopProduct;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -11,10 +12,23 @@ class ShopController extends Controller
 {
     public function index(): Response
     {
-        $shops = Shop::where('status', true)->paginate(12);
+        $shops = Shop::where('status', true)
+            ->withCount(['products as active_products_count' => function ($q) {
+                $q->wherePivot('is_active', true);
+            }])
+            ->paginate(12);
+
+        // Featured products: latest active shop_products with their global product + shop
+        $featured = ShopProduct::where('is_active', true)
+            ->with(['product', 'shop'])
+            ->whereHas('shop', fn ($q) => $q->where('status', true))
+            ->latest()
+            ->take(8)
+            ->get();
 
         return Inertia::render('Storefront/Home', [
-            'shops' => $shops,
+            'shops'    => $shops,
+            'featured' => $featured,
         ]);
     }
 
