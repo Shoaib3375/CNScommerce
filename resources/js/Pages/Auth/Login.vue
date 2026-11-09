@@ -1,40 +1,45 @@
 <script setup lang="ts">
+import { reactive } from 'vue';
+import { RouterLink, useRouter } from 'vue-router';
+import { useAuthStore } from '@/stores/auth';
 import Checkbox from '@/Components/Checkbox.vue';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
-import { Head, Link, useForm } from '@inertiajs/vue3';
 
-defineProps<{
-    canResetPassword?: boolean;
-    status?: string;
-}>();
+const authStore = useAuthStore();
+const router = useRouter();
 
-const form = useForm({
+const form = reactive({
     email: '',
     password: '',
     remember: false,
+    processing: false,
+    errors: {} as Record<string, string[]>,
 });
 
-const submit = () => {
-    form.post(route('login'), {
-        onFinish: () => {
-            form.reset('password');
-        },
-    });
-};
+async function submit() {
+    form.processing = true;
+    form.errors = {};
+    try {
+        await authStore.login(form.email, form.password);
+        const next = authStore.isAdmin ? '/admin/dashboard' : '/owner/dashboard';
+        router.push(next);
+    } catch (e: unknown) {
+        const err = e as { response?: { status?: number; data?: { errors?: Record<string, string[]> } } };
+        if (err.response?.status === 422) {
+            form.errors = err.response.data?.errors ?? {};
+        }
+    } finally {
+        form.processing = false;
+    }
+}
 </script>
 
 <template>
     <GuestLayout>
-        <Head title="Log in" />
-
-        <div v-if="status" class="mb-4 text-sm font-medium text-green-600">
-            {{ status }}
-        </div>
-
         <form @submit.prevent="submit">
             <div>
                 <InputLabel for="email" value="Email" />
@@ -49,7 +54,7 @@ const submit = () => {
                     autocomplete="username"
                 />
 
-                <InputError class="mt-2" :message="form.errors.email" />
+                <InputError class="mt-2" :message="form.errors.email?.[0]" />
             </div>
 
             <div class="mt-4">
@@ -64,26 +69,23 @@ const submit = () => {
                     autocomplete="current-password"
                 />
 
-                <InputError class="mt-2" :message="form.errors.password" />
+                <InputError class="mt-2" :message="form.errors.password?.[0]" />
             </div>
 
             <div class="mt-4 block">
                 <label class="flex items-center">
                     <Checkbox name="remember" v-model:checked="form.remember" />
-                    <span class="ms-2 text-sm text-gray-600"
-                        >Remember me</span
-                    >
+                    <span class="ms-2 text-sm text-gray-600">Remember me</span>
                 </label>
             </div>
 
             <div class="mt-4 flex items-center justify-end">
-                <Link
-                    v-if="canResetPassword"
-                    :href="route('password.request')"
+                <RouterLink
+                    to="/forgot-password"
                     class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                 >
                     Forgot your password?
-                </Link>
+                </RouterLink>
 
                 <PrimaryButton
                     class="ms-4"

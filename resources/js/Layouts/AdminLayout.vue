@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { Link, useForm, usePage } from '@inertiajs/vue3';
+import { RouterLink, useRoute, useRouter } from 'vue-router';
+import { useAuthStore } from '@/stores/auth';
 
-const page = usePage();
+const authStore = useAuthStore();
+const route = useRoute();
+const router = useRouter();
 const sidebarOpen = ref(false);
-const logoutForm = useForm({});
 
-function logout() {
-    logoutForm.post('/logout');
+async function logout() {
+    await authStore.logout();
+    router.push('/login');
 }
 
 const navItems = [
@@ -18,7 +21,7 @@ const navItems = [
 ];
 
 function isActive(href: string): boolean {
-    return page.url.startsWith(href);
+    return route.path.startsWith(href);
 }
 </script>
 
@@ -52,10 +55,10 @@ function isActive(href: string): boolean {
 
             <!-- Nav -->
             <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-                <Link
+                <RouterLink
                     v-for="item in navItems"
                     :key="item.href"
-                    :href="item.href"
+                    :to="item.href"
                     :class="[
                         'flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all',
                         isActive(item.href)
@@ -66,17 +69,17 @@ function isActive(href: string): boolean {
                 >
                     <span class="text-base">{{ item.icon }}</span>
                     {{ item.label }}
-                </Link>
+                </RouterLink>
             </nav>
 
             <!-- User footer -->
             <div class="px-4 py-4 border-t border-indigo-700/50">
                 <div class="flex items-center gap-3 mb-3">
                     <div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-sm font-bold">
-                        {{ page.props.auth?.user?.name?.charAt(0) ?? 'A' }}
+                        {{ authStore.user?.name?.charAt(0) ?? 'A' }}
                     </div>
                     <div class="min-w-0">
-                        <p class="text-white text-xs font-semibold truncate">{{ page.props.auth?.user?.name }}</p>
+                        <p class="text-white text-xs font-semibold truncate">{{ authStore.user?.name }}</p>
                         <p class="text-indigo-300 text-xs truncate">Administrator</p>
                     </div>
                 </div>
@@ -111,14 +114,14 @@ function isActive(href: string): boolean {
                         <span class="text-sm text-gray-400 hidden sm:block">Admin</span>
                     </div>
                     <div class="flex items-center gap-3">
-                        <Link
-                            href="/"
+                        <RouterLink
+                            to="/"
                             class="text-xs text-gray-500 hover:text-indigo-600 transition-colors"
                         >
                             ← View Storefront
-                        </Link>
+                        </RouterLink>
                         <div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-sm font-bold">
-                            {{ page.props.auth?.user?.name?.charAt(0) ?? 'A' }}
+                            {{ authStore.user?.name?.charAt(0) ?? 'A' }}
                         </div>
                     </div>
                 </div>

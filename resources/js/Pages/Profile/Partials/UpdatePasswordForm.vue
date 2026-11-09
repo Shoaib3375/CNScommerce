@@ -1,57 +1,68 @@
 <script setup lang="ts">
+import { reactive, ref } from 'vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
-import { useForm } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import axios from '@/axios';
 
-const passwordInput = ref<HTMLInputElement | null>(null);
-const currentPasswordInput = ref<HTMLInputElement | null>(null);
+const passwordInput = ref<InstanceType<typeof TextInput> | null>(null);
+const currentPasswordInput = ref<InstanceType<typeof TextInput> | null>(null);
 
-const form = useForm({
+const form = reactive({
     current_password: '',
     password: '',
     password_confirmation: '',
+    processing: false,
+    errors: {} as Record<string, string[]>,
 });
 
-const updatePassword = () => {
-    form.put(route('password.update'), {
-        preserveScroll: true,
-        onSuccess: () => {
-            form.reset();
-        },
-        onError: () => {
+const recentlySuccessful = ref(false);
+
+async function updatePassword() {
+    form.processing = true;
+    form.errors = {};
+    try {
+        await axios.put('/password', {
+            current_password: form.current_password,
+            password: form.password,
+            password_confirmation: form.password_confirmation,
+        });
+        form.current_password = '';
+        form.password = '';
+        form.password_confirmation = '';
+        recentlySuccessful.value = true;
+        setTimeout(() => { recentlySuccessful.value = false; }, 2000);
+    } catch (e: unknown) {
+        const err = e as { response?: { status?: number; data?: { errors?: Record<string, string[]> } } };
+        if (err.response?.status === 422) {
+            form.errors = err.response.data?.errors ?? {};
             if (form.errors.password) {
-                form.reset('password', 'password_confirmation');
-                passwordInput.value?.focus();
+                form.password = '';
+                form.password_confirmation = '';
             }
             if (form.errors.current_password) {
-                form.reset('current_password');
-                currentPasswordInput.value?.focus();
+                form.current_password = '';
             }
-        },
-    });
-};
+        }
+    } finally {
+        form.processing = false;
+    }
+}
 </script>
 
 <template>
     <section>
         <header>
-            <h2 class="text-lg font-medium text-gray-900">
-                Update Password
-            </h2>
-
+            <h2 class="text-lg font-medium text-gray-900">Update Password</h2>
             <p class="mt-1 text-sm text-gray-600">
-                Ensure your account is using a long, random password to stay
-                secure.
+                Ensure your account is using a long, random password to stay secure.
             </p>
         </header>
 
         <form @submit.prevent="updatePassword" class="mt-6 space-y-6">
             <div>
                 <InputLabel for="current_password" value="Current Password" />
-
                 <TextInput
                     id="current_password"
                     ref="currentPasswordInput"
@@ -60,16 +71,11 @@ const updatePassword = () => {
                     class="mt-1 block w-full"
                     autocomplete="current-password"
                 />
-
-                <InputError
-                    :message="form.errors.current_password"
-                    class="mt-2"
-                />
+                <InputError :message="form.errors.current_password?.[0]" class="mt-2" />
             </div>
 
             <div>
                 <InputLabel for="password" value="New Password" />
-
                 <TextInput
                     id="password"
                     ref="passwordInput"
@@ -78,16 +84,11 @@ const updatePassword = () => {
                     class="mt-1 block w-full"
                     autocomplete="new-password"
                 />
-
-                <InputError :message="form.errors.password" class="mt-2" />
+                <InputError :message="form.errors.password?.[0]" class="mt-2" />
             </div>
 
             <div>
-                <InputLabel
-                    for="password_confirmation"
-                    value="Confirm Password"
-                />
-
+                <InputLabel for="password_confirmation" value="Confirm Password" />
                 <TextInput
                     id="password_confirmation"
                     v-model="form.password_confirmation"
@@ -95,28 +96,18 @@ const updatePassword = () => {
                     class="mt-1 block w-full"
                     autocomplete="new-password"
                 />
-
-                <InputError
-                    :message="form.errors.password_confirmation"
-                    class="mt-2"
-                />
+                <InputError :message="form.errors.password_confirmation?.[0]" class="mt-2" />
             </div>
 
             <div class="flex items-center gap-4">
                 <PrimaryButton :disabled="form.processing">Save</PrimaryButton>
-
                 <Transition
                     enter-active-class="transition ease-in-out"
                     enter-from-class="opacity-0"
                     leave-active-class="transition ease-in-out"
                     leave-to-class="opacity-0"
                 >
-                    <p
-                        v-if="form.recentlySuccessful"
-                        class="text-sm text-gray-600"
-                    >
-                        Saved.
-                    </p>
+                    <p v-if="recentlySuccessful" class="text-sm text-gray-600">Saved.</p>
                 </Transition>
             </div>
         </form>

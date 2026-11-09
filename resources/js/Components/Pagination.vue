@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
+import { RouterLink } from 'vue-router';
 import type { PaginatedData } from '@/types';
 
 defineProps<{
@@ -15,9 +15,9 @@ defineProps<{
                 class="px-3 py-1.5 text-sm rounded border border-gray-200 text-gray-400 cursor-default"
                 v-html="link.label"
             />
-            <Link
+            <RouterLink
                 v-else
-                :href="link.url"
+                :to="link.url"
                 :class="[
                     'px-3 py-1.5 text-sm rounded border transition-colors',
                     link.active

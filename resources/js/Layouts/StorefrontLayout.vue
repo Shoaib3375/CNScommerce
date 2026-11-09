@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { Link, usePage } from '@inertiajs/vue3';
-import type { PageProps } from '@/types';
+import { RouterLink } from 'vue-router';
+import { useAuthStore } from '@/stores/auth';
 
-const page = usePage<PageProps>();
+const authStore = useAuthStore();
 const mobileOpen = ref(false);
 
 const navLinks = [
@@ -26,23 +26,23 @@ const footerResources  = ['FAQ', 'Privacy Policy', 'Terms of Service', 'Support'
                 <div class="flex items-center justify-between h-16">
 
                     <!-- Logo -->
-                    <Link href="/" class="flex items-center gap-2 shrink-0">
+                    <RouterLink to="/" class="flex items-center gap-2 shrink-0">
                         <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">
                             C
                         </div>
                         <span class="font-bold text-gray-900 text-lg">CNS Commerce</span>
-                    </Link>
+                    </RouterLink>
 
                     <!-- Desktop nav -->
                     <nav class="hidden md:flex items-center gap-1">
-                        <Link
+                        <RouterLink
                             v-for="link in navLinks"
                             :key="link.label"
-                            :href="link.href"
+                            :to="link.href"
                             class="px-4 py-1.5 text-sm font-medium rounded-full text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
                         >
                             {{ link.label }}
-                        </Link>
+                        </RouterLink>
                     </nav>
 
                     <!-- Right actions -->
@@ -54,24 +54,24 @@ const footerResources  = ['FAQ', 'Privacy Policy', 'Terms of Service', 'Support'
                         </button>
 
                         <!-- Admin/Owner portal link -->
-                        <template v-if="page.props.auth?.user">
-                            <Link
-                                :href="page.props.auth.user.role === 'admin' ? '/admin/dashboard' : '/owner/dashboard'"
+                        <template v-if="authStore.user">
+                            <RouterLink
+                                :to="authStore.user.role === 'admin' ? '/admin/dashboard' : '/owner/dashboard'"
                                 class="text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-1.5 rounded-full transition-colors"
                             >
                                 Dashboard
-                            </Link>
+                            </RouterLink>
                         </template>
                         <template v-else>
-                            <Link
-                                href="/login"
+                            <RouterLink
+                                to="/login"
                                 class="flex items-center gap-1.5 text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-1.5 rounded-full transition-colors"
                             >
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                                 </svg>
                                 Admin Login
-                            </Link>
+                            </RouterLink>
                         </template>
 
                         <!-- Mobile hamburger -->
@@ -89,15 +89,15 @@ const footerResources  = ['FAQ', 'Privacy Policy', 'Terms of Service', 'Support'
 
                 <!-- Mobile nav dropdown -->
                 <div v-if="mobileOpen" class="md:hidden pb-4 border-t border-gray-100 pt-3 space-y-1">
-                    <Link
+                    <RouterLink
                         v-for="link in navLinks"
                         :key="link.label"
-                        :href="link.href"
+                        :to="link.href"
                         class="block px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-600"
                         @click="mobileOpen = false"
                     >
                         {{ link.label }}
-                    </Link>
+                    </RouterLink>
                 </div>
             </div>
         </header>
@@ -116,10 +116,10 @@ const footerResources  = ['FAQ', 'Privacy Policy', 'Terms of Service', 'Support'
 
                     <!-- Brand col -->
                     <div class="sm:col-span-2 lg:col-span-1">
-                        <Link href="/" class="flex items-center gap-2.5 mb-4 w-fit">
+                        <RouterLink to="/" class="flex items-center gap-2.5 mb-4 w-fit">
                             <div class="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black text-base shadow-lg shadow-indigo-600/30">C</div>
                             <span class="font-bold text-white text-lg tracking-tight">CNS Commerce</span>
-                        </Link>
+                        </RouterLink>
                         <p class="text-sm text-gray-500 leading-relaxed max-w-xs">
                             Connecting shoppers with independent shop owners. Quality products, competitive prices, all in one place.
                         </p>
@@ -145,10 +145,10 @@ const footerResources  = ['FAQ', 'Privacy Policy', 'Terms of Service', 'Support'
                         <h4 class="text-white font-semibold text-sm mb-5 uppercase tracking-wider">Quick Links</h4>
                         <ul class="space-y-3">
                             <li v-for="l in footerQuickLinks" :key="l">
-                                <Link href="/" class="text-sm text-gray-500 hover:text-white transition-colors flex items-center gap-1.5 group">
+                                <RouterLink to="/" class="text-sm text-gray-500 hover:text-white transition-colors flex items-center gap-1.5 group">
                                     <span class="w-1 h-1 rounded-full bg-gray-600 group-hover:bg-indigo-400 transition-colors" />
                                     {{ l }}
-                                </Link>
+                                </RouterLink>
                             </li>
                         </ul>
                     </div>
