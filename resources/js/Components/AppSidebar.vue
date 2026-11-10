@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Link, usePage } from '@inertiajs/vue3';
+import { RouterLink, useRoute } from 'vue-router';
 
 interface NavItem {
     label: string;
@@ -11,19 +11,19 @@ defineProps<{
     navItems: NavItem[];
 }>();
 
-const page = usePage();
+const route = useRoute();
 
 function isActive(href: string): boolean {
-    return page.url.startsWith(href);
+    return route.path.startsWith(href);
 }
 </script>
 
 <template>
     <nav class="space-y-1">
-        <Link
+        <RouterLink
             v-for="item in navItems"
             :key="item.href"
-            :href="item.href"
+            :to="item.href"
             :class="[
                 'flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors',
                 isActive(item.href)
@@ -33,6 +33,6 @@ function isActive(href: string): boolean {
         >
             <span v-if="item.icon" class="text-base" aria-hidden="true">{{ item.icon }}</span>
             {{ item.label }}
-        </Link>
+        </RouterLink>
     </nav>
 </template>

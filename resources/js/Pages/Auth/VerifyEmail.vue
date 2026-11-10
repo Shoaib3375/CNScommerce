@@ -1,28 +1,39 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, reactive } from 'vue';
+import { useAuthStore } from '@/stores/auth';
+import { useRouter } from 'vue-router';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import axios from '@/axios';
 
-const props = defineProps<{
-    status?: string;
-}>();
+const authStore = useAuthStore();
+const router = useRouter();
 
-const form = useForm({});
+const form = reactive({
+    processing: false,
+    status: '',
+});
 
-const submit = () => {
-    form.post(route('verification.send'));
-};
+const verificationLinkSent = computed(() => form.status === 'verification-link-sent');
 
-const verificationLinkSent = computed(
-    () => props.status === 'verification-link-sent',
-);
+async function submit() {
+    form.processing = true;
+    try {
+        const r = await axios.post('/email/verification-notification');
+        form.status = r.data.status ?? 'verification-link-sent';
+    } finally {
+        form.processing = false;
+    }
+}
+
+async function logout() {
+    await authStore.logout();
+    router.push('/login');
+}
 </script>
 
 <template>
     <GuestLayout>
-        <Head title="Email Verification" />
-
         <div class="mb-4 text-sm text-gray-600">
             Thanks for signing up! Before getting started, could you verify your
             email address by clicking on the link we just emailed to you? If you
@@ -46,13 +57,13 @@ const verificationLinkSent = computed(
                     Resend Verification Email
                 </PrimaryButton>
 
-                <Link
-                    :href="route('logout')"
-                    method="post"
-                    as="button"
+                <button
+                    type="button"
+                    @click="logout"
                     class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                    >Log Out</Link
                 >
+                    Log Out
+                </button>
             </div>
         </form>
     </GuestLayout>

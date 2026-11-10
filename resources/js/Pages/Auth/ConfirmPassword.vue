@@ -1,28 +1,41 @@
 <script setup lang="ts">
+import { reactive } from 'vue';
+import { useRouter } from 'vue-router';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
-import { Head, useForm } from '@inertiajs/vue3';
+import axios from '@/axios';
 
-const form = useForm({
+const router = useRouter();
+
+const form = reactive({
     password: '',
+    processing: false,
+    errors: {} as Record<string, string[]>,
 });
 
-const submit = () => {
-    form.post(route('password.confirm'), {
-        onFinish: () => {
-            form.reset();
-        },
-    });
-};
+async function submit() {
+    form.processing = true;
+    form.errors = {};
+    try {
+        await axios.post('/confirm-password', { password: form.password });
+        router.back();
+    } catch (e: unknown) {
+        const err = e as { response?: { status?: number; data?: { errors?: Record<string, string[]> } } };
+        if (err.response?.status === 422) {
+            form.errors = err.response.data?.errors ?? {};
+        }
+        form.password = '';
+    } finally {
+        form.processing = false;
+    }
+}
 </script>
 
 <template>
     <GuestLayout>
-        <Head title="Confirm Password" />
-
         <div class="mb-4 text-sm text-gray-600">
             This is a secure area of the application. Please confirm your
             password before continuing.
@@ -40,7 +53,7 @@ const submit = () => {
                     autocomplete="current-password"
                     autofocus
                 />
-                <InputError class="mt-2" :message="form.errors.password" />
+                <InputError class="mt-2" :message="form.errors.password?.[0]" />
             </div>
 
             <div class="mt-4 flex justify-end">
